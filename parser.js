@@ -36,11 +36,20 @@ function parseOperator(rest) {
 
 function parseOperand(rest) {
   rest = removeWhitespace(rest)
-  const [node, next] = parseExpression(rest);
-  if (node !== null) {
-    return [node, next]
+  let operands = []
+
+  while (rest.length > 0) {
+    if (rest.startsWith(")")) {
+      rest = rest.slice(1)
+      return [operands, rest]
+    }
+    const [operand, next] = parseExpression(rest);
+    if (operand === null) {
+      return [null, rest]
+    }
+    operands.push(operand)
+    rest = next
   }
-  return [null, rest]
 }
 
 function parsePrimitive(rest) {
@@ -69,27 +78,13 @@ function parseCompound(rest) {
     return [null, rest]
   }
 
-  rest = removeWhitespace(next)
+  let [operands, remaining] = parseOperand(next)
 
-  let operands = []
-
-  while (rest.length > 0) {
-    if (rest.startsWith(")")) {
-      rest = rest.slice(1)
-      return [[operator, ...operands], rest]
-    }
-    let [operand, nextOperand] = parseOperand(rest)
-    if (operand == null) {
-      return [null, rest]
-    }
-    operands.push(operand)
-    rest = nextOperand
+  if (operator == null) {
+    return [null, rest]
   }
-  return [null, rest]
+  return [[...operator, ...operands], remaining]
 }
-
-
-
 
 function parseExpression(rest) {
   rest = removeWhitespace(rest)
