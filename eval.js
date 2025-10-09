@@ -1,4 +1,16 @@
-const node = ["+", 1, 2];  // represents (+ 1 2)
+// const node = 2;
+
+// const node = ["+", 2];
+
+// const node = ["+", 2, 4];
+
+// const node = ["+", ["+", 1], 4];
+
+// const node = ["+", ["+", 1], ["-", 4]];
+
+// const node = null;
+
+const node = ["*", 15, 3];
 
 const env = {
 
