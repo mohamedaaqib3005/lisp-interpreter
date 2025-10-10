@@ -5,9 +5,9 @@
 // const input = "(+ ( + 1)(- 4))"
 // const input = "(+ ( + 1)(- 4))"
 // const input = "43abc"
-const input = "( * 15 3)  "
+// const input = "( * 15 3)  "
 
-const OPERATORS = ['+', '-', '*', '/']
+const OPERATORS = ['+', '-', '*', '/','=']
 
 function removeWhitespace(rest) {
   return rest.replace(/^\s+/, "")
@@ -111,9 +111,9 @@ function parse(rest) {
   return null
 }
 
-console.log(parse(input))
+// console.log(parse(input))
 
-
+module.exports = parse
 // PARSE NUMBER INSIDE PARSEPRIMITIVE
 // break down with functions
 // operator && operand separator
