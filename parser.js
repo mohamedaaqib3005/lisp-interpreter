@@ -7,7 +7,7 @@
 // const input = "43abc"
 // const input = "( * 15 3)  "
 
-const OPERATORS = ['+', '-', '*', '/','=']
+const OPERATORS = ['+', '-', '*', '/', '=', 'if']
 
 function removeWhitespace(rest) {
   return rest.replace(/^\s+/, "")
@@ -26,13 +26,14 @@ function parseNumber(rest) {
 }
 
 function parseOperator(rest) {
-  if (OPERATORS.includes(rest[0])) {
-    let operator = rest[0]
-    let next = rest.slice(1)
-    return [operator, next]
+  for (let op of OPERATORS) {
+    if (rest.startsWith(op)) {
+      return [op, rest.slice(op.length)];
+    }
   }
-  return [null, rest]
+  return [null, rest];
 }
+
 
 function parseOperand(rest) {
   rest = removeWhitespace(rest)
@@ -83,7 +84,7 @@ function parseCompound(rest) {
   if (operator == null) {
     return [null, rest]
   }
-  return [[...operator, ...operands], remaining]
+  return [[operator, ...operands], remaining]
 }
 
 function parseExpression(rest) {
