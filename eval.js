@@ -41,13 +41,24 @@ const parse = require('./parser.js');
 // const input = "(= 2 2  4)";
 
 // if conditions
-const input = "(if 1 10 20)";
+// const input = "(if 1 10 20)";
 
 // const input = "(if (= 2 2) 10 20)";
 
 // const input = "(if (= 2 3) 10 20)";
 
-// const input = "(if (> (+ 2 2) 3) 1 0)";
+// const input = "(if (+ (+ 2 2) 3) 1 0)";
+
+// const input = "(+ -1)" // error
+// const input = "(-)"// return null error
+// const input = "(/ 5 0)" // return null
+
+// const input = "(if (= 2 2) 4 )"
+//  error
+
+const input = "((if (= 2 2) + -) 5 6 )"
+
+//  error
 const node = parse(input);
 
 console.log(node);
@@ -69,17 +80,27 @@ const env = {
     return arr.every((op) => first === op)
   },
 
-  "if": true,
+}
 
-  }
+function specialForm(operands) {
+  let [condition, thenExpr, elseExpr] = operands;
+  const condValue = evaluate(condition);
+  return (condValue) ? evaluate(thenExpr) : evaluate(elseExpr)
+}
 
-
-function Eval(node) {
+function evaluate(node) { // fn within 10 line
 
   if (typeof node === "number" || typeof node === "boolean") {
     return node;
   }
-  if (node === null || node === undefined) {
+  if (typeof node === "string") {
+    if (env[node]) {
+      return node;
+    }
+    throw new Error(`Unknown symbol: ${node}`);
+  }
+
+  if (node == null) { // double equals
     return null;
   }
 
@@ -87,23 +108,27 @@ function Eval(node) {
     console.log("empty expression");
     return null;
   }
-  const operator = node[0];
-  const operands = node.slice(1);
-  if (operator ==="if"){
-    let [condition,thenExpr,elseExpr] = operands;
-    const condValue = Eval(condition);
-    return (condValue)? Eval(thenExpr):Eval(elseExpr)
+  let operator = node[0]; // operator can be an expression
+  let operands = node.slice(1);
+  if (Array.isArray(operator)) {
+    operator = evaluate(operator);
   }
-  const values = operands.map(op => Array.isArray(op) ? Eval(op) : op);
-  console.log(values);
+  if (operator === "if") {
+    return specialForm(operands)
+  }
+
+  const values = operands.map(op => Array.isArray(op) ? evaluate(op) : op);
+  // console.log(values);
+
+
   const fn = env[operator];
   // console.log(fn);
   if (!fn) {
-    throw new Error(` Operator not present '${operator}'`);
+    throw new Error(` function is not defined '${operator}'`);
   };
   return fn(values)
 }
 
-console.log(Eval(node));
+console.log(evaluate(node));
 
 
