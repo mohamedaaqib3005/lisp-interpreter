@@ -56,12 +56,23 @@ const parse = require('./parser.js');
 // const input = "(if (= 2 2) 4 )"
 //  error
 
-const input = "((if (= 2 2) + -) 5 6 )"
+const input = "(begin (+ 1 2) (* 2 3))"
 
 //  error
 const node = parse(input);
 
 console.log(node);
+
+function logEval(expr, result) {
+  if (Array.isArray(expr)) {
+    const [op, ...args] = expr;
+    console.log(op, ...args, "→", result);
+  } else {
+    console.log(expr, "→", result);
+  }
+}
+
+
 
 const env = {
 
@@ -91,6 +102,8 @@ function specialForm(operands) {
 function evaluate(node) { // fn within 10 line
 
   if (typeof node === "number" || typeof node === "boolean") {
+    logEval(node); // log primitive
+
     return node;
   }
   if (typeof node === "string") {
@@ -114,7 +127,18 @@ function evaluate(node) { // fn within 10 line
     operator = evaluate(operator);
   }
   if (operator === "if") {
-    return specialForm(operands)
+    const result = specialForm(operands); // evaluate first
+    logEval(node, result);
+    return result;
+  }
+
+  if (operator === "begin") {
+    let result = null;
+    for (let exp of operands) {
+      result = evaluate(exp)
+      logEval(exp, result)
+    }
+    return result;
   }
 
   const values = operands.map(op => Array.isArray(op) ? evaluate(op) : op);
@@ -126,6 +150,9 @@ function evaluate(node) { // fn within 10 line
   if (!fn) {
     throw new Error(` function is not defined '${operator}'`);
   };
+  const result = fn(values)
+  logEval(node, result);
+
   return fn(values)
 }
 

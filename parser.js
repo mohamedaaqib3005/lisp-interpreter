@@ -8,7 +8,7 @@
 // const input = "( * 15 3)  "
 
 // const input = "((if (= 2 2) + -) 5 6 )"
-const OPERATORS = ['+', '-', '*', '/', '=', 'if', '>'] // find out  other way of finding operator
+const OPERATORS = ['+', '-', '*', '/', '=', 'if', '>','begin'] // find out  other way of finding operator
 
 function removeWhitespace(rest) {
   return rest.replace(/^\s+/, "")
