@@ -37,3 +37,60 @@ const input23 = "(/ 5 0)";    // division by zero → test behavior
 const input24 = "(+ (- 5) 3)";
 const input25 = "(* (- 3) 4)";
 const input26 = "(/ (- 10) 2)";
+
+
+
+// Simple single operations
+// const input = "(+ 2 3)";
+// const input = "(- 10 4)";
+// const input = "(* 5 6)";
+// const input = "(/ 20 4)";
+
+// // Unary minus
+// const input = "(- 5)"; // -5
+// const input = "(- 0)"; //-0
+
+// // Multiple operands
+// const input = "(+ 1 2 3 4)";
+// const input = "(- 20 3 2)";
+// const input= "(* 2 3 4)";
+// const input= "(/ 100 2 5)";
+
+// // Nested expressions
+// const input = "(+ (* 2 3) 4)";
+// const input = "(* (+ 1 2) (- 5 3))";
+// const input = "(- (+ 5 5) (* 2 3))";
+// const input= "(/ (* 10 2) (+ 3 2))"
+
+// // Complex nested
+// const input = "(+ (* 2 (+ 1 2)) (- 10 3))";
+// const input = "(- (/ 20 2) (+ 3 2))"
+// const input = "(* (+ 1 2) (+ 3 4))";
+// const input = "(/ (* (+ 2 3) 4) (- 10 5))";
+
+// // Mixed unary and binary
+// const input = "(+ (- 5) 3)";
+// const input = "(* (- 3) 4)";
+// const input = "(/ (- 10) 2)";
+
+//Equality check
+// const input = "(= 2 0)";
+// const input = "(= 2 2)";
+
+// const input = "(= 2 2  4)";
+
+// if conditions
+// const input = "(if 1 10 20)";
+
+// const input = "(if (= 2 2) 10 20)";
+
+// const input = "(if (= 2 3) 10 20)";
+
+// const input = "(if (+ (+ 2 2) 3) 1 0)";
+
+// const input = "(+ -1)" // error
+// const input = "(-)"// return null error
+// const input = "(/ 5 0)" // return null
+
+// const input = "(if (= 2 2) 4 )"
+//  error
