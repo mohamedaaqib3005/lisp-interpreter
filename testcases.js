@@ -1,96 +1,73 @@
-// Simple single operations
-const input1 = "(+ 2 3)";
-const input2 = "(- 10 4)";
-const input3 = "(* 5 6)";
-const input4 = "(/ 20 4)";
-
-// Unary minus
-const input5 = "(- 5)";
-const input6 = "(- 0)";
-
-// Multiple operands
-const input7 = "(+ 1 2 3 4)";
-const input8 = "(- 20 3 2)";
-const input9 = "(* 2 3 4)";
-const input10 = "(/ 100 2 5)";
-
-// Nested expressions
-const input11 = "(+ (* 2 3) 4)";
-const input12 = "(* (+ 1 2) (- 5 3))";
-const input13 = "(- (+ 5 5) (* 2 3))";
-const input14 = "(/ (* 10 2) (+ 3 2))";
-
-// Complex nested
-const input15 = "(+ (* 2 (+ 1 2)) (- 10 3))";
-const input16 = "(- (/ 20 2) (+ 3 2))";
-const input17 = "(* (+ 1 2) (+ 3 4))";
-const input18 = "(/ (* (+ 2 3) 4) (- 10 5))";
-
-// Edge / special cases
-const input19 = "(+ )";       // empty operands → test behavior
-const input20 = "(* )";       // empty operands → test behavior
-const input21 = "(- )";       // empty operands → test behavior
-const input22 = "(/ )";       // empty operands → test behavior
-const input23 = "(/ 5 0)";    // division by zero → test behavior
-
-// Mixed unary and binary
-const input24 = "(+ (- 5) 3)";
-const input25 = "(* (- 3) 4)";
-const input26 = "(/ (- 10) 2)";
 
 
+const parse = require('./parser.js');
+const { evaluate } = require('./eval.js'); // we'll export evaluate later
 
-// Simple single operations
-// const input = "(+ 2 3)";
-// const input = "(- 10 4)";
-// const input = "(* 5 6)";
-// const input = "(/ 20 4)";
+function runTest(input, expected) {
+  try {
+    const ast = parse(input);
+    const result = evaluate(ast);
+    const pass = expected === undefined || result === expected;
+    if (pass) {
+      console.log(`${input} → ${result}`);
+    }
+  }
+  catch (error) {
+    console.log(`Error: ${error.message}`)
+  }
 
-// // Unary minus
-// const input = "(- 5)"; // -5
-// const input = "(- 0)"; //-0
+}
 
-// // Multiple operands
-// const input = "(+ 1 2 3 4)";
-// const input = "(- 20 3 2)";
-// const input= "(* 2 3 4)";
-// const input= "(/ 100 2 5)";
 
-// // Nested expressions
-// const input = "(+ (* 2 3) 4)";
-// const input = "(* (+ 1 2) (- 5 3))";
-// const input = "(- (+ 5 5) (* 2 3))";
-// const input= "(/ (* 10 2) (+ 3 2))"
+// === Simple single operations ===
+runTest("(+ 2 3)", 5);
+runTest("(- 10 4)", 6);
+runTest("(* 5 6)", 30);
+runTest("(/ 20 4)", 5);
 
-// // Complex nested
-// const input = "(+ (* 2 (+ 1 2)) (- 10 3))";
-// const input = "(- (/ 20 2) (+ 3 2))"
-// const input = "(* (+ 1 2) (+ 3 4))";
-// const input = "(/ (* (+ 2 3) 4) (- 10 5))";
+// === Unary minus ===
+runTest("(- 5)", -5);
+runTest("(- 0)", -0);
 
-// // Mixed unary and binary
-// const input = "(+ (- 5) 3)";
-// const input = "(* (- 3) 4)";
-// const input = "(/ (- 10) 2)";
+// === Multiple operands ===
+runTest("(+ 1 2 3 4)", 10);
+runTest("(- 20 3 2)", 15);
+runTest("(* 2 3 4)", 24);
+runTest("(/ 100 2 5)", 10);
 
-//Equality check
-// const input = "(= 2 0)";
-// const input = "(= 2 2)";
+// === Nested ===
+runTest("(+ (* 2 3) 4)", 10);
+runTest("(* (+ 1 2) (- 5 3))", 6);
+runTest("(- (+ 5 5) (* 2 3))", 4);
+runTest("(/ (* 10 2) (+ 3 2))", 4);
 
-// const input = "(= 2 2  4)";
+// === Complex nested ===
+runTest("(+ (* 2 (+ 1 2)) (- 10 3))", 13);
+runTest("(- (/ 20 2) (+ 3 2))", 5);
+runTest("(* (+ 1 2) (+ 3 4))", 21);
+runTest("(/ (* (+ 2 3) 4) (- 10 5))", 4);
 
-// if conditions
-// const input = "(if 1 10 20)";
+// === Equality checks ===
+runTest("(= 2 2)", true);
+runTest("(= 2 3)", false);
+runTest("(= 2 2 2)", true);
+runTest("(= 2 2 4)", false);
 
-// const input = "(if (= 2 2) 10 20)";
+// === If conditions ===
+runTest("(if (= 2 2) 10 20)", 10);
+runTest("(if (= 2 3) 10 20)", 20);
+runTest("(if (+ 1 2) 10 20)", 10);
 
-// const input = "(if (= 2 3) 10 20)";
+// === Begin block ===
+runTest("(begin (+ 1 2) (* 2 3))", 6);
+runTest("(begin (+ 1 2) (+ (* 2 2) 3))", 7);
+runTest("(begin (- 5) (+ 2 3))", 5);
+runTest("(begin (+ 3 4))", 7);
+runTest("(begin (if (= 2 2) 10 20) (* 2 3))", 6);
 
-// const input = "(if (+ (+ 2 2) 3) 1 0)";
+// === Error tests (should throw) ===
+runTest("(+ )");      // no operands
+runTest("(/ 5 0)");   // divide by zero
+runTest("(unknown 2 3)"); // invalid operator
 
-// const input = "(+ -1)" // error
-// const input = "(-)"// return null error
-// const input = "(/ 5 0)" // return null
 
-// const input = "(if (= 2 2) 4 )"
-//  error
