@@ -1,7 +1,14 @@
 
-
+const readline = require('readline');
 const parse = require('./parser.js');
 const { evaluate } = require('./eval.js');
+
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  prompt: 'lisp> '
+});
 
 function runTest(input, expected) {
   try {
@@ -16,6 +23,24 @@ function runTest(input, expected) {
     console.error(`Error while testing input ${input} :${err.message}`);
   }
 }
+
+rl.prompt();
+
+rl.on("line", (input) => {
+  try {
+    const ast = parse(input);
+    const result = evaluate(ast);
+    console.log(result);
+  } catch (err) {
+    console.error(`Error while testing input ${input}: ${err.message}`);
+  }
+
+  rl.prompt();
+})
+  .on('close', () => {
+    console.log("Bye!");
+    process.exit(0);
+  });
 
 
 // === Simple single operations ===
