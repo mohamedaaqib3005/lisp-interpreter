@@ -1,21 +1,20 @@
 
 
 const parse = require('./parser.js');
-const { evaluate } = require('./eval.js'); // we'll export evaluate later
+const { evaluate } = require('./eval.js');
 
 function runTest(input, expected) {
   try {
     const ast = parse(input);
-    const result = evaluate(ast);
-    const pass = expected === undefined || result === expected;
-    if (pass) {
-      console.log(`${input} → ${result}`);
-    }
+    const result = evaluate(ast)
+    console.assert(
+      expected == undefined || result === expected,
+      `Test failed for ${input} , expected ${expected} got:${result} `
+    )
   }
-  catch (error) {
-    console.log(`Error: ${error.message}`)
+  catch (err) {
+    console.error(`Error while testing input ${input} :${err.message}`);
   }
-
 }
 
 
