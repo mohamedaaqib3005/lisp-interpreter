@@ -46,3 +46,5 @@ function parse(input) {
   }
   return ast;
 }
+
+module.exports = parse;

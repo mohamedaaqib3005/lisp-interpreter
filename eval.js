@@ -62,6 +62,13 @@ function ifCondition(operands) {
   return (condValue) ? evaluate(thenExpr) : evaluate(elseExpr)
 }
 
+function define(operands) {
+  const [variable, expression] = operands;
+  const value = evaluate(expression);
+  env[variable] = value;
+  return value;
+}
+
 function evaluate(node) { // fn within 10 line
   if (node == null) {
     return null;
@@ -99,6 +106,9 @@ function evaluate(node) { // fn within 10 line
       // logEval(exp, result)
     }
     return result;
+  }
+  if (operator === "define") {
+    return define(operands)
   }
 
   const values = operands.map(op => Array.isArray(op) ? evaluate(op) : op);
