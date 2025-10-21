@@ -1,128 +1,48 @@
-// const input = "2"
-// const input = "(+ 2)"
-// const input = "(+ 2 4)"
-// const input = "(+ ( + 1) 4)"
-// const input = "(+ ( + 1)(- 4))"
-// const input = "(+ ( + 1)(- 4))"
-// const input = "43abc"
-// const input = "( * 15 3)  "
+function tokenise(input) {
+  return input
+    .replace(/\(/g, "(")
+    .replace(/\)/g, ")")
+    .trim()
+    .split(/\s+/)
 
-// const input = "((if (= 2 2) + -) 5 6 )"
-const OPERATORS = ['+', '-', '*', '/', '=', 'if', '>', 'begin'] // find out  other way of finding operator
-
-function removeWhitespace(rest) {
-  return rest.replace(/^\s+/, "")
 }
 
-function parseNumber(rest) {
-
-  let match = rest.match(/^\d+/) // it can also have minus sign, it should handle decimals
-  if (match) {
-    let num = Number(match[0]);
-    let next = rest.slice(match[0].length)
-    // console.log("parseNumber:", num, "next:", next)
-
-    return [num, next]
+function atom(token) {
+  if (/^-?d+(\.\d+)? $ /.test(token)) {
+    return parseFloat(token);
   }
-  return [null, rest]
-
+  return token;
 }
 
-function parseOperator(rest) { // there should not be parseoperator can be replaced by parsetoken tokens are something which dont have space within them
-  rest = removeWhitespace(rest)
-  for (let op of OPERATORS) {
-    if (rest.startsWith(op)) {
-      // console.log("parseOperator:", op, "next:", rest.slice(op.length))
-      return [op, rest.slice(op.length)];
+
+function parsetoken(tokens) {
+  let token = tokens.shift()
+  if (token === "(") {
+    let list = [];
+    while (tokens[0] !== ")") {
+      if (tokens.length === 0) {
+        throw new Error("missing closing ')' ")
+      }
+      list.push(parsetoken(token))
     }
+    tokens.shift()
+    return list;
   }
-  return [null, rest];
+  else if (token[0] === ")") {
+    throw new Error("unexpected ')' ")
+  }
+  else {
+    return atom(token)
+  }
 }
 
 
 
-function parsePrimitive(rest) { // it should be replaced with parsesymbol
-  rest = removeWhitespace(rest)
-  // console.log("parsePrimitive start:", rest)
-
-  let [num, next] = parseNumber(rest)
-  if (num !== null) {
-    return [num, next]
+function parse(input) {
+  const tokens = tokenise(input);
+  const ast = parsetoken(tokens);
+  if (tokens.length > 0) {
+    throw new Error("Extra input after parsing")
   }
-  let [operator, nextOp] = parseOperator(rest)
-  if (operator !== null) {
-    return [operator, nextOp]
-  }
-  return [null, rest]
+  return ast;
 }
-
-function parseCompound(rest) {
-  rest = removeWhitespace(rest)
-  // console.log("parseCompound start:", rest)
-
-  if (!rest.startsWith("(")) return [null, rest];
-
-  rest = rest.slice(1);
-  rest = removeWhitespace(rest);
-
-  let operands = [];
-
-  while (rest.length > 0) {
-    if (rest.startsWith(")")) {
-      rest = rest.slice(1);
-      // console.log("parseCompound result:", operands, "remaining:", rest);
-      return [operands, rest];
-    }
-    let expr
-    [expr, rest] = parseExpression(rest);
-    if (expr === null) return [null, rest];
-
-    operands.push(expr);
-    rest = removeWhitespace(rest);
-  }
-
-  return [null, rest];
-}
-
-
-
-function parseExpression(rest) {
-  rest = removeWhitespace(rest)
-  // console.log("parseExpression start:", rest)
-
-  if (rest.length === 0) {
-    return [null, rest]
-  }
-  let result = parseCompound(rest);
-  if (result[0] !== null) {
-    // console.log("parseExpression compound result:", result)
-
-    return result;
-
-  }
-  let prim = parsePrimitive(rest)
-
-  // console.log("parseExpression primitive result:", prim)
-
-  return parsePrimitive(rest);
-
-}
-
-function parse(rest) {
-  let [node, next] = parseExpression(rest)
-  next = removeWhitespace(next)
-  // console.log("parse final:", node, "remaining:", next)
-
-  if (node !== null && next.length === 0) {
-    return node
-  }
-  return null
-}
-
-// console.log(parse(input))
-
-module.exports = parse
-// PARSE NUMBER INSIDE PARSEPRIMITIVE
-// break down with functions
-// operator && operand separator
-// define the operators outside

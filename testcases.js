@@ -15,7 +15,7 @@ function runTest(input, expected) {
     const ast = parse(input);
     const result = evaluate(ast)
     console.assert(
-      expected == undefined || result === expected,
+      expected !== undefined && result === expected,
       `Test failed for ${input} , expected ${expected} got:${result} `
     )
   }
