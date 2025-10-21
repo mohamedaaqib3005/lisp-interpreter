@@ -88,6 +88,8 @@ runTest("(begin (+ 1 2) (+ (* 2 2) 3))", 7);
 runTest("(begin (- 5) (+ 2 3))", 5);
 runTest("(begin (+ 3 4))", 7);
 runTest("(begin (if (= 2 2) 10 20) (* 2 3))", 6);
+runTest("(begin -1 2 -3)",);
+
 
 // === Error tests (should throw) ===
 runTest("(+ )");      // no operands

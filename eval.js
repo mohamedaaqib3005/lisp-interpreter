@@ -27,14 +27,6 @@ const node = parse(input);
 
 console.log(node);
 
-function logEval(expr, result) {
-  if (Array.isArray(expr)) {
-    const [op, ...args] = expr;
-    console.log(op, ...args, "→", result);
-  } else {
-    console.log(expr, "→", result);
-  }
-}
 
 
 const env = {
@@ -54,6 +46,14 @@ const env = {
     return arr.every((op) => first === op)
   },
 
+  "log": (arr) => {
+    const evaluated = arr.map(x => Array.isArray(x) ? evaluate(x) : x);
+    console.log(evaluated);
+    for (const val of evaluated) {
+      console.log("log:", val);
+    }
+    return evaluated[evaluated.length - 1];
+  }
 }
 
 function ifCondition(operands) {
@@ -96,7 +96,7 @@ function evaluate(node) { // fn within 10 line
     let result = null;
     for (let exp of operands) {
       result = evaluate(exp)
-      logEval(exp, result)
+      // logEval(exp, result)
     }
     return result;
   }
@@ -111,7 +111,7 @@ function evaluate(node) { // fn within 10 line
     throw new Error(` function is not defined '${operator}'`);
   };
   const result = fn(values)
-  logEval(node, result);
+  // logEval(node, result);
 
   return fn(values)
 }
