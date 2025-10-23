@@ -17,7 +17,23 @@ const parse = require('./parser.js');
 
 // const input = "";// throw error
 
-const input = "(define x 10)";
+// const input = "(begin (define x 10) (define y x))";
+
+// const input = "(define flag true)";
+
+// const input = "(define isActive false)";
+
+// const input = "(begin (define x 10) (define y (+ x 5)))";
+
+
+// const input = "(begin (define a 5) (define b (* (+ a 3) 2)))";
+
+// const input = "(begin (define x 5) (define x 20))";
+
+
+const input = "(set x 10)";
+// const input = "(set x 10)";
+
 
 
 const node = parse(input);
@@ -75,46 +91,36 @@ function define(operands) {
   env[variable] = value;
   return value;
 }
+
+function set(operands) {
+  const [variable, expression] = operands;
+  if (!(variable in env)) {
+    throw new Error("the variable does not exist in env")
+  }
+  const value = evaluate(expression);
+  env[variable] = value;
+  return value;
+}
+
+
 function evaluate(node) {
-  if (node == null) {
-    return null;
-  }
-  if (Array.isArray(node) && node.length === 0) {
-    throw new Error("Empty expression");
-  }
-  if (typeof node === "number" || typeof node === "boolean") {
-    return node;
-  }
+  if (node == null) return null;
+  if (Array.isArray(node) && node.length === 0) throw new Error("Empty expression");
+  if (typeof node === "number" || typeof node === "boolean") return node;
   if (typeof node === "string") {
-    if (!isNaN(node)) {
-      return Number(node);
-      ss
-    }
-    if (env[node] !== undefined) {
-      return env[node];
-    }
+    if (env[node] !== undefined) return env[node];
     throw new Error(`Unknown symbol: ${node}`);
   }
-
   let operator = node[0];
   let operands = node.slice(1);
-
-  if (Array.isArray(operator))
-    operator = evaluate(operator);
-
-  if (operator === "if") {
-    return ifCondition(operands);
-  }
-  if (operator === "define") {
-    return define(operands);
-  }
+  if (Array.isArray(operator)) operator = evaluate(operator);
+  if (operator === "if") return ifCondition(operands);
+  if (operator === "define") return define(operands);
+  if (operator === "set") return set(operands);
   if (operator === "begin") {
-    if (operands.length === 0) {
-      throw new Error("(begin) expects at least one expression");
-    }
+    if (operands.length === 0) throw new Error("(begin) expects at least one expression");
     return operands.map(evaluate).pop();
   }
-
   const values = operands.map(op => Array.isArray(op) ? evaluate(op) : op);
   const fn = env[operator];
   if (!fn) throw new Error(`Function not defined: '${operator}'`);

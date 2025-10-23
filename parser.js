@@ -8,10 +8,19 @@ function tokenise(input) {
 }
 
 function atom(token) {
-  if (/^[+-]?\d+(\.\d+)?$/.token) {
+  if (/^[+-]?\d+(\.\d+)?$/.test(token)) {
     return parseFloat(token);
   }
-  return token;
+  if (token === "true") {
+    return true;
+  }
+  else if (token === "false") {
+    return false;
+  }
+  else {
+    return token;
+
+  }
 }
 
 
