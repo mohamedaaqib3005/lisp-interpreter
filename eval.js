@@ -60,7 +60,6 @@ const env = {
 
   "log": (args) => {
     args.forEach(val => console.log("log:", val));
-    return args[args.length - 1];
   }
 }
 
@@ -89,6 +88,7 @@ function evaluate(node) {
   if (typeof node === "string") {
     if (!isNaN(node)) {
       return Number(node);
+      ss
     }
     if (env[node] !== undefined) {
       return env[node];
