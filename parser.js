@@ -1,14 +1,14 @@
 function tokenise(input) {
   return input
-    .replace(/\(/g, "(")
-    .replace(/\)/g, ")")
+    .replace(/\(/g, " ( ")
+    .replace(/\)/g, " ) ")
     .trim()
     .split(/\s+/)
 
 }
 
 function atom(token) {
-  if (/^-?d+(\.\d+)? $ /.test(token)) {
+  if (/^[+-]?\d+(\.\d+)?$/.token) {
     return parseFloat(token);
   }
   return token;
@@ -23,14 +23,15 @@ function parsetoken(tokens) {
       if (tokens.length === 0) {
         throw new Error("missing closing ')' ")
       }
-      list.push(parsetoken(token))
+      list.push(parsetoken(tokens))
     }
     tokens.shift()
     return list;
   }
-  else if (token[0] === ")") {
-    throw new Error("unexpected ')' ")
+  else if (token === ")") {
+    throw new Error("unexpected ')'");
   }
+
   else {
     return atom(token)
   }

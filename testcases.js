@@ -90,6 +90,20 @@ runTest("(begin (+ 3 4))", 7);
 runTest("(begin (if (= 2 2) 10 20) (* 2 3))", 6);
 runTest("(begin -1 2 -3)",);
 
+// define
+runTest("(= x 10)", 10);
+runTest("x", 10);
+
+runTest("(= y (+ x 5))", 15);
+runTest("y", 15);
+
+runTest("(= x (* y 2))", 30);
+runTest("x", 30);
+
+runTest("(= name \"aaqib\")", "aaqib");
+runTest("name", "aaqib");
+
+
 
 // === Error tests (should throw) ===
 runTest("(+ )");      // no operands

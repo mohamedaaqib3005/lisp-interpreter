@@ -13,14 +13,11 @@ const parse = require('./parser.js');
 
 // const input = "(begin -1 2 -3)";// error
 
-// const input = "(+ (begin +2 5 (+ 2 (begin 2 5 (+ 2 5) ) ) ) 6 3 9) ";
+// const input = "(+ (begin+2 5(+ 2 (begin 2 5 (+ 2 5) ) ) ) 6 3 9) ";
 
 // const input = "";// throw error
 
-const input = "+" // should return fn [Function: log]
-
-
-
+const input = "(define x 10)";
 
 
 const node = parse(input);
@@ -28,35 +25,46 @@ const node = parse(input);
 console.log(node);
 
 
-
 const env = {
 
-  "+": (arr) => arr.reduce((a, b) => a + b, 0),
+  "+": (arr) => {
+    if (arr.length < 2)
+      throw new Error("'+' needs at least two args");
+    return arr.reduce((a, b) => a + b, 0);
+  },
 
-  "-": (arr) => arr.length === 1 ? -arr[0] : arr.reduce((a, b) => a - b),
+  "-": (arr) => {
+    if (arr.length < 1)
+      throw new Error("'-' needs at least one arg");
+    return arr.length === 1 ? -arr[0] : arr.reduce((a, b) => a - b)
+  },
 
-  "*": (arr) => arr.reduce((a, b) => a * b, 1,),
+  "*": (arr) => {
+    if (arr.length < 2)
+      throw new Error("'*' needs at least two args");
+    return arr.reduce((a, b) => a * b, 1)
+  },
 
-  "/": (arr) => arr.reduce((a, b) => a / b),
+  "/": (arr) => {
+    if (arr.length < 2)
+      throw new Error("'/' needs at least two args");
+    return arr.reduce((a, b) => a / b);
+  },
 
   "=": (arr) => {
-    if (arr.length === 0)
-      throw new Error("Needs atleast one operand") //
+    if (arr.length < 1)
+      throw new Error("'=' needs at least one arg");
     const first = arr[0];
     return arr.every((op) => first === op)
   },
 
-  "log": (arr) => {
-    const evaluated = arr.map(x => Array.isArray(x) ? evaluate(x) : x);
-    console.log(evaluated);
-    for (const val of evaluated) {
-      console.log("log:", val);
-    }
-    return evaluated[evaluated.length - 1];
+  "log": (args) => {
+    args.forEach(val => console.log("log:", val));
+    return args[args.length - 1];
   }
 }
 
-function ifCondition(operands) {
+function ifCondition(operands) { //fn within 20 lines
   let [condition, thenExpr, elseExpr] = operands;
   const condValue = evaluate(condition);
   return (condValue) ? evaluate(thenExpr) : evaluate(elseExpr)
@@ -68,65 +76,50 @@ function define(operands) {
   env[variable] = value;
   return value;
 }
-
-function evaluate(node) { // fn within 10 line
+function evaluate(node) {
   if (node == null) {
     return null;
   }
-
   if (Array.isArray(node) && node.length === 0) {
-    throw new Error("empty expression");
+    throw new Error("Empty expression");
   }
-
   if (typeof node === "number" || typeof node === "boolean") {
     return node;
   }
   if (typeof node === "string") {
-    if (env[node]) {
-      return node;
+    if (!isNaN(node)) {
+      return Number(node);
+    }
+    if (env[node] !== undefined) {
+      return env[node];
     }
     throw new Error(`Unknown symbol: ${node}`);
   }
 
-
-  let operator = node[0]; // operator can be an expression
+  let operator = node[0];
   let operands = node.slice(1);
-  if (Array.isArray(operator)) {
-    operator = evaluate(operator);
-  }
-  if (operator === "if") {
-    const result = ifCondition(operands); // evaluate first
-    return result;
-  }
 
-  if (operator === "begin") { //make function for begin
-    let result = null;
-    for (let exp of operands) {
-      result = evaluate(exp)
-      // logEval(exp, result)
-    }
-    return result;
+  if (Array.isArray(operator))
+    operator = evaluate(operator);
+
+  if (operator === "if") {
+    return ifCondition(operands);
   }
   if (operator === "define") {
-    return define(operands)
+    return define(operands);
+  }
+  if (operator === "begin") {
+    if (operands.length === 0) {
+      throw new Error("(begin) expects at least one expression");
+    }
+    return operands.map(evaluate).pop();
   }
 
   const values = operands.map(op => Array.isArray(op) ? evaluate(op) : op);
-  // console.log(values);
-
-
   const fn = env[operator];
-  // console.log(fn);
-  if (!fn) {
-    throw new Error(` function is not defined '${operator}'`);
-  };
-  const result = fn(values)
-  // logEval(node, result);
-
-  return fn(values)
+  if (!fn) throw new Error(`Function not defined: '${operator}'`);
+  return fn(values);
 }
 
 console.log(evaluate(node));
-
-
 module.exports = { evaluate };
