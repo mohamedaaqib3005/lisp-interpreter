@@ -64,7 +64,7 @@ const env = {
   }
 }
 
-function ifCondition(operands) { //fn within 20 lines
+function ifCondition(operands) {
   let [condition, thenExpr, elseExpr] = operands;
   const condValue = evaluate(condition);
   return (condValue) ? evaluate(thenExpr) : evaluate(elseExpr)
