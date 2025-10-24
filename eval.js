@@ -31,7 +31,7 @@ const parse = require('./parser.js');
 // const input = "(begin (define x 5) (define x 20))";
 
 
-const input = "(set x 10)";
+const input = "( + 2 3)";
 // const input = "(set x 10)";
 
 
@@ -39,7 +39,6 @@ const input = "(set x 10)";
 const node = parse(input);
 
 console.log(node);
-
 
 const env = {
 
@@ -121,11 +120,11 @@ function evaluate(node) {
     if (operands.length === 0) throw new Error("(begin) expects at least one expression");
     return operands.map(evaluate).pop();
   }
-  const values = operands.map(op => Array.isArray(op) ? evaluate(op) : op);
+  const values = operands.map(evaluate);
   const fn = env[operator];
   if (!fn) throw new Error(`Function not defined: '${operator}'`);
   return fn(values);
 }
 
 console.log(evaluate(node));
-module.exports = { evaluate };
+module.exports = { evaluate, env };
