@@ -1,39 +1,7 @@
-// to do
-//separate testcase file with working eval ,each testcase should have expected output
-// repl
-// log func in env not as special form
-// add comparative operators and logical operators
-// throw an error (begin (-) (+)) expects some arg
-// parsing shouldnt lookup in env
-// throw error for operators minus needs atleast one arg ,+,/,* needs atleast 2 arg
-// fn within 20 line
-
 
 const parse = require('./parser.js');
 
-// const input = "(begin -1 2 -3)";// error
-
-// const input = "(+ (begin+2 5(+ 2 (begin 2 5 (+ 2 5) ) ) ) 6 3 9) ";
-
-// const input = "";// throw error
-
-// const input = "(begin (define x 10) (define y x))";
-
-// const input = "(define flag true)";
-
-// const input = "(define isActive false)";
-
-// const input = "(begin (define x 10) (define y (+ x 5)))";
-
-
-// const input = "(begin (define a 5) (define b (* (+ a 3) 2)))";
-
-// const input = "(begin (define x 5) (define x 20))";
-
-
-const input = "( + 2 3)";
-// const input = "(set x 10)";
-
+const input = "(begin (+ 1 2) (* 2 3))";
 
 
 const node = parse(input);
@@ -78,27 +46,30 @@ const env = {
   }
 }
 
-function ifCondition(operands) {
-  let [condition, thenExpr, elseExpr] = operands;
-  const condValue = evaluate(condition);
-  return (condValue) ? evaluate(thenExpr) : evaluate(elseExpr)
-}
 
-function define(operands) {
-  const [variable, expression] = operands;
-  const value = evaluate(expression);
-  env[variable] = value;
-  return value;
-}
+const specialForms = {
+  if: (evaluate, operands) => {
+    let [condition, thenExpr, elseExpr] = operands;
+    const condValue = evaluate(condition);
+    return (condValue) ? evaluate(thenExpr) : evaluate(elseExpr)
+  },
+  begin: (operands) => {
+    if (operands.length === 0) throw new Error("(begin) expects at least one expression");
+    return operands.map(evaluate).pop();
+  },
+  define: (operands, evaluate, env) => {
+    const [variable, expression] = operands;
+    const value = evaluate(expression);
+    env[variable] = value;
+    return value;
+  },
+  set: (operands, evaluate, env) => {
+    const [variable, expression] = operands;
+    if (!(variable in env)) {
+      throw new Error("the variable does not exist in env")
+    }
+  },
 
-function set(operands) {
-  const [variable, expression] = operands;
-  if (!(variable in env)) {
-    throw new Error("the variable does not exist in env")
-  }
-  const value = evaluate(expression);
-  env[variable] = value;
-  return value;
 }
 
 
@@ -110,15 +81,10 @@ function evaluate(node) {
     if (env[node] !== undefined) return env[node];
     throw new Error(`Unknown symbol: ${node}`);
   }
-  let operator = node[0];
-  let operands = node.slice(1);
+  let [operator, ...operands] = node;
   if (Array.isArray(operator)) operator = evaluate(operator);
-  if (operator === "if") return ifCondition(operands);
-  if (operator === "define") return define(operands);
-  if (operator === "set") return set(operands);
-  if (operator === "begin") {
-    if (operands.length === 0) throw new Error("(begin) expects at least one expression");
-    return operands.map(evaluate).pop();
+  if (specialForms[operator]) {
+    return specialForms[operator](operands, evaluate, env)
   }
   const values = operands.map(evaluate);
   const fn = env[operator];

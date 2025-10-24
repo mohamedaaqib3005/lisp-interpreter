@@ -44,71 +44,71 @@ rl.on("line", (input) => {
 
 
 // === Simple single operations ===
-// runTest("(+ 2 3)", 5);
-// runTest("(- 10 4)", 6);
-// runTest("(* 5 6)", 30);
-// runTest("(/ 20 4)", 5);
+runTest("(+ 2 3)", 5);
+runTest("(- 10 4)", 6);
+runTest("(* 5 6)", 30);
+runTest("(/ 20 4)", 5);
 
-// // === Unary minus ===
-// runTest("(- 5)", -5);
-// runTest("(- 0)", -0);
+// === Unary minus ===
+runTest("(- 5)", -5);
+runTest("(- 0)", -0);
 
-// // === Multiple operands ===
-// runTest("(+ 1 2 3 4)", 10);
-// runTest("(- 20 3 2)", 15);
-// runTest("(* 2 3 4)", 24);
-// runTest("(/ 100 2 5)", 10);
+// === Multiple operands ===
+runTest("(+ 1 2 3 4)", 10);
+runTest("(- 20 3 2)", 15);
+runTest("(* 2 3 4)", 24);
+runTest("(/ 100 2 5)", 10);
 
-// // === Nested ===
-// runTest("(+ (* 2 3) 4)", 10);
-// runTest("(* (+ 1 2) (- 5 3))", 6);
-// runTest("(- (+ 5 5) (* 2 3))", 4);
-// runTest("(/ (* 10 2) (+ 3 2))", 4);
+// === Nested ===
+runTest("(+ (* 2 3) 4)", 10);
+runTest("(* (+ 1 2) (- 5 3))", 6);
+runTest("(- (+ 5 5) (* 2 3))", 4);
+runTest("(/ (* 10 2) (+ 3 2))", 4);
 
-// // === Complex nested ===
-// runTest("(+ (* 2 (+ 1 2)) (- 10 3))", 13);
-// runTest("(- (/ 20 2) (+ 3 2))", 5);
-// runTest("(* (+ 1 2) (+ 3 4))", 21);
-// runTest("(/ (* (+ 2 3) 4) (- 10 5))", 4);
+// === Complex nested ===
+runTest("(+ (* 2 (+ 1 2)) (- 10 3))", 13);
+runTest("(- (/ 20 2) (+ 3 2))", 5);
+runTest("(* (+ 1 2) (+ 3 4))", 21);
+runTest("(/ (* (+ 2 3) 4) (- 10 5))", 4);
 
-// // === Equality checks ===
-// runTest("(= 2 2)", true);
-// runTest("(= 2 3)", false);
-// runTest("(= 2 2 2)", true);
-// runTest("(= 2 2 4)", false);
+// === Equality checks ===
+runTest("(= 2 2)", true);
+runTest("(= 2 3)", false);
+runTest("(= 2 2 2)", true);
+runTest("(= 2 2 4)", false);
 
-// // === If conditions ===
-// runTest("(if (= 2 2) 10 20)", 10);
-// runTest("(if (= 2 3) 10 20)", 20);
-// runTest("(if (+ 1 2) 10 20)", 10);
+// === If conditions ===
+runTest("(if (= 2 2) 10 20)", 10);
+runTest("(if (= 2 3) 10 20)", 20);
+runTest("(if (+ 1 2) 10 20)", 10);
 
-// // === Begin block ===
-// runTest("(begin (+ 1 2) (* 2 3))", 6);
-// runTest("(begin (+ 1 2) (+ (* 2 2) 3))", 7);
-// runTest("(begin (- 5) (+ 2 3))", 5);
-// runTest("(begin (+ 3 4))", 7);
-// runTest("(begin (if (= 2 2) 10 20) (* 2 3))", 6);
-// runTest("(begin -1 2 -3)",);
+// === Begin block ===
+runTest("(begin (+ 1 2) (* 2 3))", 6);
+runTest("(begin (+ 1 2) (+ (* 2 2) 3))", 7);
+runTest("(begin (- 5) (+ 2 3))", 5);
+runTest("(begin (+ 3 4))", 7);
+runTest("(begin (if (= 2 2) 10 20) (* 2 3))", 6); // error
+runTest("(begin -1 2 -3)",);
 
-// // define
-// runTest("(= x 10)", 10);
-// runTest("x", 10);
+// define
+runTest("(= x 10)", 10);
+runTest("x", 10);
 
-// runTest("(= y (+ x 5))", 15);
-// runTest("y", 15);
+runTest("(= y (+ x 5))", 15);
+runTest("y", 15);
 
-// runTest("(= x (* y 2))", 30);
-// runTest("x", 30);
+runTest("(= x (* y 2))", 30);
+runTest("x", 30);
 
-// runTest("(= name \"aaqib\")", "aaqib");
-// runTest("name", "aaqib");
+runTest("(= name \"aaqib\")", "aaqib");
+runTest("name", "aaqib");
 
 
 
-// // === Error tests (should throw) ===
-// runTest("(+ )");      // no operands
-// runTest("(/ 5 0)");   // divide by zero
-// runTest("(unknown 2 3)"); // invalid operator
+// === Error tests (should throw) ===
+runTest("(+ )");      // no operands
+runTest("(/ 5 0)");   // divide by zero
+runTest("(unknown 2 3)"); // invalid operator
 
 // === Define variable tests ===
 runTest("(define x 10)", 10);
