@@ -1,4 +1,4 @@
-
+// deine should not  be able to redefine
 const readline = require('readline');
 const parse = require('./parser.js');
 const { evaluate, env } = require('./eval.js');
@@ -120,7 +120,7 @@ runTest("y", 15);
 runTest("(define z (* y 2))", 30);//  NaN
 runTest("z", 30); //rror while testing input ("y", 15): Function not defined: '"y"
 
-runTest("(define name \"aaqib\")", "aaqib"); //Error while testing input (define name \"aaqib\"): Unknown symbol: \"aaqib\"
+runTest('(define name "aaqib")', "aaqib"); //Error while testing input (define name \"aaqib\"): Unknown symbol: \"aaqib\"
 runTest("name", "aaqib");
 
 // === Set variable tests ===
@@ -136,6 +136,9 @@ runTest("name", "mohammed");
 // === Error: setting undefined variable ===
 runTest("(set notDefined 20)"); // should throw error
 
+// (if (= 2 2 ) (define x 2) (define x 1) ) // erorr
+// (define define +) should restrict the use of special forms
+// ((begin + +) 2 2 )
 // === Check env after operations ===
 console.log("ENV snapshot after define/set tests:", env);
 

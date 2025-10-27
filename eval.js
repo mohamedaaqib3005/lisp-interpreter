@@ -1,3 +1,5 @@
+// run try and catch in testcases to expect an error modify the run test this is the error msg im expecting  for ex: reference error .... ; if it mactches the error it can display passed
+//
 
 const parse = require('./parser.js');
 
@@ -11,8 +13,6 @@ console.log(node);
 const env = {
 
   "+": (arr) => {
-    if (arr.length < 2)
-      throw new Error("'+' needs at least two args");
     return arr.reduce((a, b) => a + b, 0);
   },
 
@@ -23,8 +23,6 @@ const env = {
   },
 
   "*": (arr) => {
-    if (arr.length < 2)
-      throw new Error("'*' needs at least two args");
     return arr.reduce((a, b) => a * b, 1)
   },
 
@@ -35,8 +33,8 @@ const env = {
   },
 
   "=": (arr) => {
-    if (arr.length < 1)
-      throw new Error("'=' needs at least one arg");
+    if (arr.length < 2)
+      throw new Error("'=' needs at least two arg");
     const first = arr[0];
     return arr.every((op) => first === op)
   },
@@ -44,11 +42,11 @@ const env = {
   "log": (args) => {
     args.forEach(val => console.log("log:", val));
   }
-}
+}// add comparison ops
 
 
 const specialForms = {
-  if: (evaluate, operands) => {
+  if: (operands) => {
     let [condition, thenExpr, elseExpr] = operands;
     const condValue = evaluate(condition);
     return (condValue) ? evaluate(thenExpr) : evaluate(elseExpr)
@@ -57,40 +55,59 @@ const specialForms = {
     if (operands.length === 0) throw new Error("(begin) expects at least one expression");
     return operands.map(evaluate).pop();
   },
-  define: (operands, evaluate, env) => {
+  define: (operands) => {
     const [variable, expression] = operands;
     const value = evaluate(expression);
     env[variable] = value;
     return value;
   },
-  set: (operands, evaluate, env) => {
+  set: (operands) => {
     const [variable, expression] = operands;
     if (!(variable in env)) {
       throw new Error("the variable does not exist in env")
     }
+    const value = evaluate(expression);
+    env[variable] = value;
+    return value;
   },
-
+  lambda: (operands) => {
+    let [params, body] = operands;
+    if (!Array.isArray(params)) throw new Error("lambda expects a list")
+    return function (...args) {
+      params.forEach((param, i) => env[param] = evaluate(args[i]))
+      return evaluate(body)
+    }
+  },
 }
+
 
 
 function evaluate(node) {
   if (node == null) return null;
-  if (Array.isArray(node) && node.length === 0) throw new Error("Empty expression");
+  if (Array.isArray(node) && node.length === 0) throw new Error("Empty expression");// create a function
   if (typeof node === "number" || typeof node === "boolean") return node;
   if (typeof node === "string") {
     if (env[node] !== undefined) return env[node];
     throw new Error(`Unknown symbol: ${node}`);
   }
   let [operator, ...operands] = node;
+  if (specialForms[operator]) {
+    return specialForms[operator](operands)
+  }
   if (Array.isArray(operator)) operator = evaluate(operator);
   if (specialForms[operator]) {
-    return specialForms[operator](operands, evaluate, env)
+    return specialForms[operator](operands)
   }
-  const values = operands.map(evaluate);
-  const fn = env[operator];
+  const values = operands.map(evaluate); // add checks if operator is already an function dont need to lookup
+  const fn = env[operator];// fn = operator
   if (!fn) throw new Error(`Function not defined: '${operator}'`);
   return fn(values);
+
+
+
 }
 
 console.log(evaluate(node));
 module.exports = { evaluate, env };
+
+
