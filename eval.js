@@ -73,7 +73,7 @@ const specialForms = {
   },
   lambda: (operands) => {
     let [params, body] = operands;
-    if (!Array.isArray(params)) throw new Error("lambda expects a list")
+    if (!Array.isArray(params)) throw new Error("lambda expects a  list of params")
     return function (...args) {
       params.forEach((param, i) => env[param] = evaluate(args[i]))
       return evaluate(body)
