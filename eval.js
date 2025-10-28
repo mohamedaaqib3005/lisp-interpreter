@@ -3,7 +3,8 @@
 
 const parse = require('./parser.js');
 
-const input = "(begin (+ 1 2) (* 2 3))";
+const input = "(begin(define adder (lambda (x) (+ x 1))) (adder 1)) "
+
 
 
 const node = parse(input);
@@ -99,13 +100,20 @@ function evaluate(node) {
     return specialForms[operator](operands)
   }
   const values = operands.map(evaluate); // add checks if operator is already an function dont need to lookup
-  const fn = env[operator];// fn = operator
-  if (!fn) throw new Error(`Function not defined: '${operator}'`);
-  return fn(values);
+  let fn = operator;
+  if (typeof operator === "string") {
+    fn = env[operator];
+    if (!fn) throw new Error(`Function not defined: '${operator}'`);
+    if (["+", "-", "*", "/", "=", "log"].includes(operator)) {
+      return fn(values);
+    } else {
+      return fn(...values);
+    }
+  }
 
-
-
+  return fn(...values);
 }
+
 
 console.log(evaluate(node));
 module.exports = { evaluate, env };
