@@ -3,7 +3,7 @@
 
 const parse = require('./parser.js');
 
-const input = "(begin(define adder (lambda (x) (+ x 1))) (adder 1)) "
+const input = "(begin (define addTwo (lambda (x y) (+ x y))) (addTwo 3 5))"
 
 
 
@@ -74,9 +74,11 @@ const specialForms = {
   lambda: (operands) => {
     let [params, body] = operands;
     if (!Array.isArray(params)) throw new Error("lambda expects a  list of params")
+    let localEnv = Object.create(env)
+    console.log(localEnv)
     return function (...args) {
-      params.forEach((param, i) => env[param] = evaluate(args[i]))
-      return evaluate(body)
+      params.forEach((param, i) => localEnv[param] = evaluate(args[i]))
+      return evaluate(body, localEnv)
     }
   },
 }
