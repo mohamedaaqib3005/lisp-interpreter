@@ -3,7 +3,7 @@
 
 const parse = require('./parser.js');
 
-const input = "(begin (define addTwo (lambda (x y) (+ x y))) (addTwo 3 5))"
+const input = "(begin (define addTwo (lambda (x y) (+ x y)))  (addTwo 5))"
 
 
 
@@ -11,7 +11,7 @@ const node = parse(input);
 
 console.log(node);
 
-const env = {
+const globalEnv = {
 
   "+": (arr) => {
     return arr.reduce((a, b) => a + b, 0);
@@ -44,40 +44,39 @@ const env = {
     args.forEach(val => console.log("log:", val));
   }
 }// add comparison ops
-
+  ;
 
 const specialForms = {
-  if: (operands) => {
+  if: (operands, env) => {
     let [condition, thenExpr, elseExpr] = operands;
-    const condValue = evaluate(condition);
-    return (condValue) ? evaluate(thenExpr) : evaluate(elseExpr)
+    const condValue = evaluate(condition, env);
+    return (condValue) ? evaluate(thenExpr, env) : evaluate(elseExpr, env)
   },
-  begin: (operands) => {
+  begin: (operands, env) => {
     if (operands.length === 0) throw new Error("(begin) expects at least one expression");
-    return operands.map(evaluate).pop();
+    return operands.map((op) => evaluate(op, env)).pop();
   },
-  define: (operands) => {
+  define: (operands, env) => {
     const [variable, expression] = operands;
-    const value = evaluate(expression);
+    const value = evaluate(expression, env);
     env[variable] = value;
     return value;
   },
-  set: (operands) => {
+  set: (operands, env) => {
     const [variable, expression] = operands;
     if (!(variable in env)) {
       throw new Error("the variable does not exist in env")
     }
-    const value = evaluate(expression);
+    const value = evaluate(expression, env);
     env[variable] = value;
     return value;
   },
-  lambda: (operands) => {
+  lambda: (operands, env) => {
     let [params, body] = operands;
     if (!Array.isArray(params)) throw new Error("lambda expects a  list of params")
-    let localEnv = Object.create(env)
-    console.log(localEnv)
     return function (...args) {
-      params.forEach((param, i) => localEnv[param] = evaluate(args[i]))
+      let localEnv = Object.create(env)
+      params.forEach((param, i) => localEnv[param] = evaluate(args[i], localEnv))
       return evaluate(body, localEnv)
     }
   },
@@ -85,7 +84,7 @@ const specialForms = {
 
 
 
-function evaluate(node) {
+function evaluate(node, env = globalEnv) {
   if (node == null) return null;
   if (Array.isArray(node) && node.length === 0) throw new Error("Empty expression");// create a function
   if (typeof node === "number" || typeof node === "boolean") return node;
@@ -94,14 +93,13 @@ function evaluate(node) {
     throw new Error(`Unknown symbol: ${node}`);
   }
   let [operator, ...operands] = node;
+
+  if (Array.isArray(operator)) operator = evaluate(operator, env);
   if (specialForms[operator]) {
-    return specialForms[operator](operands)
+    return specialForms[operator](operands, env)
   }
-  if (Array.isArray(operator)) operator = evaluate(operator);
-  if (specialForms[operator]) {
-    return specialForms[operator](operands)
-  }
-  const values = operands.map(evaluate); // add checks if operator is already an function dont need to lookup
+  const values = operands.map(op => evaluate(op, env)); // add checks if operator is already an function dont need to lookup
+
   let fn = operator;
   if (typeof operator === "string") {
     fn = env[operator];
@@ -118,6 +116,6 @@ function evaluate(node) {
 
 
 console.log(evaluate(node));
-module.exports = { evaluate, env };
+module.exports = { evaluate, env: globalEnv };
 
 
