@@ -109,24 +109,22 @@ function evaluate(node, env = globalEnv) {
   if (specialForms[operator]) {
     return specialForms[operator](operands, env)
   }
-  const values = operands.map(op => evaluate(op, env)); // add checks if operator is already an function dont need to lookup
+  let fn = typeof operator === "function" ? operator : env[operator];
+  if (!fn) throw new Error(`Function not defined: '${operator}'`);
 
-  let fn = operator;
-  if (typeof operator === "string") {
-    fn = env[operator];
-    if (!fn) throw new Error(`Function not defined: '${operator}'`);
-    if (["+", "-", "*", "/", "=", "log"].includes(operator)) {
-      return fn(values);
-    } else {
-      return fn(...values);
-    }
-  }
+  const values = operands.map((op) => evaluate(op, env));
+
+  if (["+", "-", "*", "/", "=", "<", ">", "<=", ">=", "log"].includes(operator))
+    return fn(values);
+
+  return fn(...values);
+
 
   return fn(...values);
 }
 
 
-console.log(evaluate(node));
+// console.log(evaluate(node));
 module.exports = { evaluate, env: globalEnv };
 
 
