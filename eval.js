@@ -3,7 +3,7 @@
 
 const parse = require('./parser.js');
 
-const input = "(begin (define addTwo (lambda (x y) (+ x y)))  (addTwo 5))"
+const input = "(begin(define a 5)(set a 20)a)"
 
 
 
@@ -58,6 +58,9 @@ const specialForms = {
   },
   define: (operands, env) => {
     const [variable, expression] = operands;
+    if (variable in env || variable in specialForms) {
+      throw new Error(`Cannot redefine built-in or special form: ${variable}`);
+    }
     const value = evaluate(expression, env);
     env[variable] = value;
     return value;
@@ -65,7 +68,7 @@ const specialForms = {
   set: (operands, env) => {
     const [variable, expression] = operands;
     if (!(variable in env)) {
-      throw new Error("the variable does not exist in env")
+      throw new Error(`Variable '${variable}' not defined`)
     }
     const value = evaluate(expression, env);
     env[variable] = value;
@@ -75,6 +78,9 @@ const specialForms = {
     let [params, body] = operands;
     if (!Array.isArray(params)) throw new Error("lambda expects a  list of params")
     return function (...args) {
+      if ((args.length) !== params.length) {
+        throw new Error(`Lambda expected ${params.length} args, got ${args.length}`);
+      }
       let localEnv = Object.create(env)
       params.forEach((param, i) => localEnv[param] = evaluate(args[i], localEnv))
       return evaluate(body, localEnv)
@@ -82,11 +88,16 @@ const specialForms = {
   },
 }
 
-
+function checkEmptyExpression(node) {
+  if (Array.isArray(node) && node.length === 0) {
+    throw new Error("Empty expression");
+  }
+}
 
 function evaluate(node, env = globalEnv) {
   if (node == null) return null;
-  if (Array.isArray(node) && node.length === 0) throw new Error("Empty expression");// create a function
+  checkEmptyExpression(node);
+
   if (typeof node === "number" || typeof node === "boolean") return node;
   if (typeof node === "string") {
     if (env[node] !== undefined) return env[node];

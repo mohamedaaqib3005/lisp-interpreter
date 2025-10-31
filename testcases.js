@@ -14,13 +14,18 @@ function runTest(input, expected) {
   try {
     const ast = parse(input);
     const result = evaluate(ast)
-    console.assert(
-      expected !== undefined && result === expected,
-      `Test failed for ${input} , expected ${expected} got:${result} `
-    )
-  }
-  catch (err) {
-    console.error(`Error while testing input ${input} :${err.message}`);
+    if (typeof expected === "string" && expected.startsWith("Error:")) {
+      console.assert(false, `Test failed: ${input}\nExpected error "${expected}", but got result: ${result}`);
+    } else {
+      console.assert(result === expected, ` Test failed: ${input}\nExpected{expected}, got ${result}`);
+    }
+  } catch (err) {
+    if (typeof expected === "string" && expected.startsWith("Error:")) {
+      const cleanErr = `Error: ${err.message}`;
+      console.assert(cleanErr === expected, `Test failed: ${input}\nExpected "${expected}" but got "${cleanErr}"`);
+    } else {
+      console.assert(false, ` Unexpected error in ${input}: ${err.message}`);
+    }
   }
 }
 
@@ -140,5 +145,5 @@ runTest("(set notDefined 20)"); // should throw error
 // (define define +) should restrict the use of special forms
 // ((begin + +) 2 2 )
 // === Check env after operations ===
-console.log("ENV snapshot after define/set tests:", env);
+console.log("ENV snapshot :", env);
 
