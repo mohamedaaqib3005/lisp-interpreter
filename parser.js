@@ -45,27 +45,27 @@ function parsetoken(tokens) {
   }
 }
 
-function parsetokenPure(tokens) {
-  if (tokens[0] === ")") {
-    throw new Error("unexpected ')'");
-  }
+// function parsetokenPure(tokens) {
+//   if (tokens[0] === ")") {
+//     throw new Error("unexpected ')'");
+//   }
 
-  if (tokens[0] != "(") {
-    return [atom(tokens[0]), tokens.slice(1)]
-  }
+//   if (tokens[0] != "(") {
+//     return [atom(tokens[0]), tokens.slice(1)]
+//   }
 
-  let remainingTokens = tokens.slice(1)
-  const AST = [];
-  while (remainingTokens[0] != ")") {
-    const [subAST, subTokens] = parsetokenPure(tokens.slice(1))
-    remainingTokens = subTokens
-    AST.append(subAST)
-  }
+//   let remainingTokens = tokens.slice(1)
+//   const AST = [];
+//   while (remainingTokens[0] != ")") {
+//     const [subAST, subTokens] = parsetokenPure(tokens.slice(1))
+//     remainingTokens = subTokens
+//     AST.append(subAST)
+//   }
 
-  remainingTokens = remainingTokens.slice(1)
+//   remainingTokens = remainingTokens.slice(1)
 
-  return [AST, remainingTokens]
-}
+//   return [AST, remainingTokens]
+// }
 
 
 function parse(input) {

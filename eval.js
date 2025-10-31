@@ -1,15 +1,15 @@
 // run try and catch in testcases to expect an error modify the run test this is the error msg im expecting  for ex: reference error .... ; if it mactches the error it can display passed
 //
 
-const parse = require('./parser.js');
+// const parse = require('./parser.js');
 
-const input = "(begin(define a 5)(set a 20)a)"
+// const input = "(begin(define a 5)(set a 20)a)"
 
 
 
-const node = parse(input);
+// const node = parse(input);
 
-console.log(node);
+// console.log(node);
 
 const globalEnv = {
 
@@ -119,8 +119,6 @@ function evaluate(node, env = globalEnv) {
 
   return fn(...values);
 
-
-  return fn(...values);
 }
 
 
