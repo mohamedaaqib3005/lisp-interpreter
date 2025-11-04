@@ -1,5 +1,6 @@
 function tokenise(input) {
-  return input.replaceAll("(", " ( ")
+  return input
+    .replaceAll("(", " ( ")
     .replaceAll(")", " ) ")
     .trim()
     .split(/\s+/)

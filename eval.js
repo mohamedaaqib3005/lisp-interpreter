@@ -1,15 +1,3 @@
-// run try and catch in testcases to expect an error modify the run test this is the error msg im expecting  for ex: reference error .... ; if it mactches the error it can display passed
-//
-
-// const parse = require('./parser.js');
-
-// const input = "(begin(define a 5)(set a 20)a)"
-
-
-
-// const node = parse(input);
-
-// console.log(node);
 
 const globalEnv = {
 
@@ -43,8 +31,7 @@ const globalEnv = {
   "log": (args) => {
     args.forEach(val => console.log("log:", val));
   }
-}// add comparison ops
-  ;
+};
 
 const specialForms = {
   if: (operands, env) => {
@@ -58,7 +45,7 @@ const specialForms = {
   },
   define: (operands, env) => {
     const [variable, expression] = operands;
-    if (variable in env || variable in specialForms) {
+    if (variable in specialForms) {
       throw new Error(`Cannot redefine built-in or special form: ${variable}`);
     }
     const value = evaluate(expression, env);
@@ -67,11 +54,15 @@ const specialForms = {
   },
   set: (operands, env) => {
     const [variable, expression] = operands;
-    if (!(variable in env)) {
-      throw new Error(`Variable '${variable}' not defined`)
+    let scope = env;
+    while (scope && !(variable in scope)) { //can also be done using hasOwnPropertymethod
+      scope = Object.getPrototypeOf(scope);
     }
+
+    if (!scope) throw new Error(`Variable '${variable}' not defined`);
+
     const value = evaluate(expression, env);
-    env[variable] = value;
+    scope[variable] = value;
     return value;
   },
   lambda: (operands, env) => {
@@ -114,15 +105,13 @@ function evaluate(node, env = globalEnv) {
 
   const values = operands.map((op) => evaluate(op, env));
 
-  if (["+", "-", "*", "/", "=", "<", ">", "<=", ">=", "log"].includes(operator))
+  if (["+", "-", "*", "/", "=", "<", ">", "<=", ">=", "log"].includes(operator))//change it the evaluate should not know about the functions and these are ordinary fns and can be modified unlike specialform functions
     return fn(values);
 
   return fn(...values);
 
 }
 
-
-// console.log(evaluate(node));
 module.exports = { evaluate, env: globalEnv };
 
 
