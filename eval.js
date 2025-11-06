@@ -27,6 +27,22 @@ const globalEnv = {
     const first = arr[0];
     return arr.every((op) => first === op)
   },
+  "<": (arr) => {
+    if (arr.length < 2) throw new Error("'<' needs at least two args");
+    return arr.every((v, i, a) => i === 0 || a[i - 1] < v);
+  },
+  "<=": (arr) => {
+    if (arr.length < 2) throw new Error("'<=' needs at least two args");
+    return arr.every((v, i, a) => i === 0 || a[i - 1] <= v);
+  },
+  ">": (arr) => {
+    if (arr.length < 2) throw new Error("'>' needs at least two args");
+    return arr.every((v, i, a) => i === 0 || a[i - 1] > v);
+  },
+  ">=": (arr) => {
+    if (arr.length < 2) throw new Error("'>=' needs at least two args");
+    return arr.every((v, i, a) => i === 0 || a[i - 1] >= v);
+  },
 
   "log": (args) => {
     args.forEach(val => console.log("log:", val));
@@ -91,6 +107,7 @@ function evaluate(node, env = globalEnv) {
 
   if (typeof node === "number" || typeof node === "boolean") return node;
   if (typeof node === "string") {
+
     if (env[node] !== undefined) return env[node];
     throw new Error(`Unknown symbol: ${node}`);
   }
