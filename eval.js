@@ -109,6 +109,10 @@ const specialForms = {
       params.forEach((param, i) => localEnv[param] = args[i]);
       return evaluate(body, localEnv);
     };
+  },
+  quote: (operands) => {
+    if (operands.length !== 1) throw new Error("cannot have more than one operand")
+    return operands[0];
   }
 };
 

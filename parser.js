@@ -26,6 +26,7 @@ function atom(token) {
 
 function parsetoken(tokens) {
   let token = tokens.shift()
+
   if (token === "(") {
     let list = [];
     while (tokens[0] !== ")") {
