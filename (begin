@@ -1,0 +1,24 @@
+(begin
+  (define func (lambda (x) (log x)))
+  (define x 1)
+  ((lambda ()
+    (begin
+      (define x 2)
+      (func x)
+    )
+  ))
+  (func x)
+)
+
+(begin
+  (define x 1)
+  (define inner
+    (lambda (x)
+      (* x 2)))
+  (define outer
+    (lambda (y)
+      (begin
+        (define x 2)
+        (* (inner x) y))))
+  (log (inner x))
+  (log (outer x)))

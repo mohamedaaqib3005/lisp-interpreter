@@ -46,6 +46,18 @@ const globalEnv = {
 
   "log": (args) => {
     args.forEach(val => console.log("log:", val));
+  },
+  "modulo": (arr) => {
+    if (arr.length !== 2) throw new Error("Expects atleast 2 args");
+    let a = Number[arr[0]];
+    let b = Number[arr[1]];
+    if (b === 0) throw new Error("modulo cannot divide by 0");
+    let remainder = a % b;
+    if (remainder < 0) {
+      remainder += Math.abs(b);
+    }
+    return remainder;
+
   }
 };
 
