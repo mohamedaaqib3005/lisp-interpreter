@@ -117,7 +117,7 @@ const specialForms = {
     for (member of expr) {
       if (Array.isArray(member)) {
         if (member[0] === "unquote") {
-          let result = evaluate(evaluate(member[1], env))
+          let result = evaluate(member[1], env)
           list.push(result)
         }
       }
