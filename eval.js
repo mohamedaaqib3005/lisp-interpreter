@@ -110,10 +110,25 @@ const specialForms = {
       return evaluate(body, localEnv);
     };
   },
-  quote: (operands) => {
+  quote: (operands, env) => {
     if (operands.length !== 1) throw new Error("cannot have more than one operand")
-    return operands[0];
+    let list = []
+    let expr = operands[0]
+    for (member of expr) {
+      if (Array.isArray(member)) {
+        if (member[0] === "unquote") {
+          let result = evaluate(evaluate(member[1], env))
+          list.push(result)
+        }
+      }
+      else {
+        list.push(member)
+      }
+    }
+    return list
+
   }
+
 };
 
 function checkEmptyExpression(node) {
@@ -143,8 +158,8 @@ function evaluate(node, env = globalEnv) {
 
   const values = operands.map((op) => evaluate(op, env));
 
+  console.log(env)
   return fn(...values);
-
 }
 
 module.exports = { evaluate, env: globalEnv };

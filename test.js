@@ -46,3 +46,12 @@ rl.on("line", (input) => {
     process.exit(0);
   });
 
+// runTest(`(begin
+//   (define fibonacci
+//     (lambda (n)
+//       (if (> n 2)
+//          (+ (fibonacci (- n 1)) (fibonacci (- n 2)))
+//          1
+//           )))
+//   (fibonacci 5))
+// `)
