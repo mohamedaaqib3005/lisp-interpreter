@@ -111,30 +111,39 @@ const specialForms = {
     };
   },
   quote: (operands, env) => {
-    if (operands.length !== 1) throw new Error("cannot have more than one operand")
-    let list = []
-    let expr = operands[0]
-    for (member of expr) {
-      if (Array.isArray(member)) {
-        if (member[0] === "unquote") {
-          let result = evaluate(member[1], env)
-          list.push(result)
-        }
+    function processCompoundExpression(compExpr, quotationLevel) {
+      let [operator, ...operands] = compExpr
+      if (operator !== "unquote") {
+        if (operator === "quote") quotationLevel++
+        return compExpr.map((expr) => (isCompoundExpression(expr) ? (processCompoundExpression(expr, quotationLevel)) : expr))
+      }
+      if (quotationLevel > 1) {
+        return [operator, ...operands.map((operand) => (isCompoundExpression(operand) ? processCompoundExpression(operand, quotationLevel - 1) : operand))];
       }
       else {
-        list.push(member)
-      }
-    }
-    return list
+        return localEnv.unquote(...operands)
 
+      }
+
+    }
+    if (operands.length !== 1) throw new Error("cannot have more than one operand");
+    let localEnv = Object.create(env);
+    localEnv["unquote"] = (expr) => evaluate(expr, env);
+    let expr = operands[0]
+    console.log("hi");
+    return isCompoundExpression(expr) ? processCompoundExpression(expr, 1) : expr
   }
 
 };
 
 function checkEmptyExpression(node) {
-  if (Array.isArray(node) && node.length === 0) {
+  if (isCompoundExpression(node) && node.length === 0) {
     throw new Error("Empty expression");
   }
+}
+
+function isCompoundExpression(expr) {
+  return Array.isArray(expr)
 }
 
 function evaluate(node, env = globalEnv) {
@@ -149,10 +158,11 @@ function evaluate(node, env = globalEnv) {
   }
   let [operator, ...operands] = node;
 
-  if (Array.isArray(operator)) operator = evaluate(operator, env);
+  if (isCompoundExpression(operator)) operator = evaluate(operator, env);
   if (specialForms[operator]) {
     return specialForms[operator](operands, env)
   }
+  // we can fix the evaluate fn to make unquote behave like special form
   let fn = typeof operator === "function" ? operator : env[operator];
   if (!fn) throw new Error(`Function not defined: '${operator}'`);
 
