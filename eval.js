@@ -5,6 +5,7 @@ const globalEnv = {
   },
 
   "-": (...arr) => {
+    console.log(`the arguments ${arr}`)
     if (arr.length < 1) throw new Error("'-' needs at least one arg");
     return arr.length === 1 ? -arr[0] : arr.reduce((a, b) => a - b);
   },
@@ -112,15 +113,20 @@ const specialForms = {
   },
   quote: (operands, env) => {
     function processCompoundExpression(compExpr, quotationLevel) {
+      console.log("comp", compExpr)
       let [operator, ...operands] = compExpr
       if (operator !== "unquote") {
         if (operator === "quote") quotationLevel++
         return compExpr.map((expr) => (isCompoundExpression(expr) ? (processCompoundExpression(expr, quotationLevel)) : expr))
       }
       if (quotationLevel > 1) {
+        console.log("quot level", quotationLevel)
+        console.log("the operator", operator)
+        console.log("the operands", operands)
         return [operator, ...operands.map((operand) => (isCompoundExpression(operand) ? processCompoundExpression(operand, quotationLevel - 1) : operand))];
       }
       else {
+        console.log("ops", ...operands)
         return localEnv.unquote(...operands)
 
       }
@@ -130,10 +136,8 @@ const specialForms = {
     let localEnv = Object.create(env);
     localEnv["unquote"] = (expr) => evaluate(expr, env);
     let expr = operands[0]
-    console.log("hi");
     return isCompoundExpression(expr) ? processCompoundExpression(expr, 1) : expr
   }
-
 };
 
 function checkEmptyExpression(node) {
