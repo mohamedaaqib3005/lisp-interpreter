@@ -137,6 +137,46 @@ const specialForms = {
     localEnv["unquote"] = (expr) => evaluate(expr, env);
     let expr = operands[0]
     return isCompoundExpression(expr) ? processCompoundExpression(expr, 1) : expr
+  },
+  defmacro: (operands, env) => {
+    if (!Array.isArray(operands)) throw new Error("def macros expects a list of params")
+    let [name, params, ...body] = operands;
+    let macroFn = function (...args) {
+      if (args.length !== params.length) {
+        throw new Error(`Lambda expected ${params.length} args, got ${args.length}`);
+      }
+      let localEnv = Object.create(env)
+      params.forEach((params, i) => localEnv[params] = args[i]);
+      return expandMacro(body[0], env, 1);
+
+    }
+    env[name] = macroFn;
+    return macroFn;
+
+    function expandMacro(expr, env, quotationLevel) {
+      let [operator, ...operands] = expr;
+      if (operator !== "unquote") {
+        if (operator === "quote") {
+          quotationLevel++;
+          return expr.map(SubExp => isCompoundExpression(SubExp) ? expandMacro(SubExp) : SubExp)
+        }
+        return expr;
+      }
+      if (quotationLevel > 1) {
+        let result = [operator];
+        for (let operand of operands) {
+          if (isCompoundExpression(operand)) {
+            result.push(expandMacro(operand, env, quotationLevel - 1));
+          }
+          else {
+            result.push(operand)
+          }
+        }
+        return result;
+      }
+      else return evaluate(operands[0], env)
+
+    }
   }
 };
 

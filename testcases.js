@@ -143,7 +143,7 @@ rl.on("line", (input) => {
 // // (define define +) should restrict the use of special forms
 // // ((begin + +) 2 2 )
 // // === Check env after operations ===
-// console.log("ENV snapshot :", env);
+console.log("ENV snapshot :", env);
 // (quote (unquote (+ 1 2)))
 // (quote (quote (unquote (+ 1 2))))
 
