@@ -146,10 +146,13 @@ const specialForms = {
         throw new Error(`Lambda expected ${params.length} args, got ${args.length}`);
       }
       let localEnv = Object.create(env)
-      params.forEach((params, i) => localEnv[params] = args[i]);
-      return expandMacro(body[0], env, 1);
+      params.forEach((p, i) => localEnv[p] = args[i]);
+
+      const template = (body.length === 1) ? body[0] : ["begin", ...body]
+      return expandMacro(template, localEnv, 0);
 
     }
+    macroFn.isMacro = true;
     env[name] = macroFn;
     return macroFn;
 
@@ -157,24 +160,20 @@ const specialForms = {
       let [operator, ...operands] = expr;
       if (operator !== "unquote") {
         if (operator === "quote") {
-          quotationLevel++;
-          return expr.map(SubExp => isCompoundExpression(SubExp) ? expandMacro(SubExp) : SubExp)
+          if (expr.length !== 2) throw new Error("quote expects exactly one operand");
+          const inner = operands[0];
+          return expandMacro(inner, env, quotationLevel + 1);
         }
-        return expr;
+        return expr.map(SubExp => isCompoundExpression(SubExp) ? expandMacro(SubExp, env, quotationLevel) : SubExp);
       }
       if (quotationLevel > 1) {
-        let result = [operator];
-        for (let operand of operands) {
-          if (isCompoundExpression(operand)) {
-            result.push(expandMacro(operand, env, quotationLevel - 1));
-          }
-          else {
-            result.push(operand)
-          }
-        }
-        return result;
+        const inner = operands[0];
+        return ["unquote", isCompoundExpression(inner) ? expandMacro(inner, env, quotationLevel - 1) : inner];
       }
-      else return evaluate(operands[0], env)
+      else {
+        return evaluate(operands[0], env);
+
+      }
 
     }
   }
@@ -206,10 +205,12 @@ function evaluate(node, env = globalEnv) {
   if (specialForms[operator]) {
     return specialForms[operator](operands, env)
   }
-  // we can fix the evaluate fn to make unquote behave like special form
   let fn = typeof operator === "function" ? operator : env[operator];
   if (!fn) throw new Error(`Function not defined: '${operator}'`);
-
+  if (fn.isMacro) {
+    const expandedAST = fn(...operands);
+    return evaluate(expandedAST, env)
+  }
   const values = operands.map((op) => evaluate(op, env));
 
   console.log(env)

@@ -148,3 +148,4 @@ console.log("ENV snapshot :", env);
 // (quote (quote (unquote (+ 1 2))))
 
 // (begin (define x 6) (define unquote -) (quote (quote (+ 1 (unquote (unquote x))))))
+// (defmacro unlisp (arg1 op arg2) (quote (unquote op unquote arg1 unquote arg2)))
